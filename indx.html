@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>StudyMind AI 🧠</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0d1e;--bg2:#10102a;--bg3:#13132e;--bg4:#0a0a1e;--acc:#667eea;--acc2:#764ba2;--gold:#ffd700;--green:#00b894;--red:#d63031;--text:#e0e0ff;--sub:#7878aa;--border:#1e1e3a}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;direction:rtl}
+header{background:linear-gradient(135deg,var(--acc),var(--acc2));padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(102,126,234,.4)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{font-size:26px}
+.logo-title{font-size:17px;font-weight:700}
+.logo-sub{font-size:11px;opacity:.8}
+.key-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:7px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;font-family:inherit}
+.layout{display:flex;height:calc(100vh - 54px);overflow:hidden}
+.sidebar{width:265px;background:var(--bg2);padding:16px 13px;border-left:1px solid var(--border);overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;gap:11px}
+.sidebar h3{color:var(--acc);font-size:12px;margin-bottom:3px}
+.drop-zone{border:2px dashed var(--acc);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:.2s}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(102,126,234,.07)}
+.drop-zone.has-file{border-color:var(--green);background:rgba(0,184,148,.07)}
+.drop-icon{font-size:22px;margin-bottom:4px}
+.drop-text{font-size:11.5px;color:var(--sub)}
+.drop-name{color:var(--green);font-size:11px;margin-top:3px;word-break:break-all}
+textarea{width:100%;background:#0c1a2e;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 12px;font-size:12.5px;resize:vertical;font-family:inherit;direction:rtl;outline:none;transition:.2s;min-height:115px}
+textarea:focus{border-color:var(--acc)}
+textarea::placeholder{color:var(--sub)}
+.status{border-radius:9px;padding:7px 11px;font-size:11.5px;text-align:center;border:1px solid}
+.status.ok{background:rgba(0,184,148,.1);border-color:var(--green);color:var(--green)}
+.status.warn{background:rgba(255,215,0,.07);border-color:var(--gold);color:var(--gold)}
+.clear-btn{background:var(--red);border:none;color:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:10.5px;margin-top:4px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;gap:3px;padding:9px 12px;background:var(--bg4);overflow-x:auto;flex-shrink:0;scrollbar-width:thin}
+.tab-btn{background:var(--bg3);border:1px solid transparent;color:var(--sub);padding:7px 12px;border-radius:10px;cursor:pointer;font-size:12px;white-space:nowrap;font-family:inherit;transition:.2s}
+.tab-btn:hover{color:var(--text);border-color:var(--border)}
+.tab-btn.active{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-weight:700;border-color:transparent}
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+h2.pt{color:var(--acc);margin-bottom:13px;font-size:17px}
+.gen-btn{background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;color:#fff;padding:10px 24px;border-radius:12px;cursor:pointer;font-size:13.5px;font-weight:700;font-family:inherit;transition:.2s;margin-bottom:13px}
+.gen-btn:hover{opacity:.9}
+.gen-btn:disabled{background:#1e1e2e;color:#444;cursor:not-allowed}
+.dl-btn{background:var(--bg2);border:1px solid var(--acc);color:#90b8f8;padding:5px 11px;border-radius:8px;cursor:pointer;font-size:12px;margin:3px;font-family:inherit;transition:.2s}
+.dl-btn:hover{background:rgba(102,126,234,.15)}
+.rc{background:var(--bg3);border-radius:13px;padding:16px;margin-top:4px;border:1px solid var(--border)}
+pre.rp{background:#09091a;border:1px solid var(--border);border-radius:10px;padding:13px;white-space:pre-wrap;line-height:1.85;font-size:13px;font-family:inherit;color:var(--text)}
+.dl-row{margin-top:10px;display:flex;flex-wrap:wrap;gap:3px}
+.quiz-q{background:var(--bg3);border-radius:13px;padding:17px;margin-bottom:11px;border:1px solid var(--border)}
+.quiz-q h4{color:var(--gold);margin-bottom:9px;font-size:13.5px}
+.opt{display:block;width:100%;background:#0c1a2e;border:2px solid transparent;border-radius:9px;padding:9px 13px;margin:5px 0;cursor:pointer;text-align:right;color:var(--text);font-size:13px;font-family:inherit;transition:.2s}
+.opt:hover{border-color:var(--acc)}
+.opt.correct{background:#003d30!important;border-color:var(--green)!important}
+.opt.wrong{background:#3a0000!important;border-color:var(--red)!important}
+.opt.selected{border-color:var(--acc)!important;background:#1a2a4a!important}
+.exp-box{background:#09091a;border-radius:8px;padding:8px 11px;margin-top:7px;color:#a29bfe;font-size:12px}
+.score-box{background:var(--bg3);border-radius:13px;padding:18px;text-align:center;font-size:20px;color:var(--gold);border:1px solid var(--border);margin-top:11px}
+.check-btn{background:linear-gradient(135deg,#f093fb,#f5576c);border:none;color:#fff;padding:10px 26px;border-radius:12px;cursor:pointer;font-size:13.5px;font-weight:700;font-family:inherit;margin:9px 0}
+.card-counter{text-align:center;color:var(--sub);margin-bottom:7px;font-size:12.5px}
+.fc-card{border-radius:17px;padding:36px 28px;text-align:center;cursor:pointer;min-height:155px;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:background .3s;user-select:none;margin-bottom:13px}
+.fc-card.front{background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.fc-card.back{background:linear-gradient(135deg,#f093fb,#f5576c)}
+.fc-label{font-size:11.5px;opacity:.8;margin-bottom:9px}
+.fc-text{font-size:15px;font-weight:700;line-height:1.6}
+.fc-nav{display:flex;justify-content:center;gap:9px;margin-bottom:14px}
+.nav-btn{background:var(--bg3);border:1px solid var(--acc);color:#fff;padding:7px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12.5px}
+.fc-list{background:var(--bg3);border-radius:12px;padding:11px;max-height:190px;overflow-y:auto;border:1px solid var(--border)}
+.fc-item{background:#0c1a2e;border-radius:8px;padding:7px 10px;margin-bottom:5px;cursor:pointer;border:1px solid transparent;font-size:12px;transition:.15s}
+.fc-item:hover,.fc-item.active{border-color:var(--acc);background:#1a2a4a}
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 230px)}
+.chat-msgs{flex:1;overflow-y:auto;background:#09091a;border-radius:13px;padding:13px;margin-bottom:9px}
+.msg{display:flex;margin-bottom:9px}
+.msg.user{justify-content:flex-start}
+.msg.ai{justify-content:flex-end}
+.bubble{border-radius:13px;padding:9px 13px;max-width:80%;line-height:1.75;font-size:13px}
+.msg.user .bubble{background:#0c1a2e}
+.msg.ai .bubble{background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.chat-row{display:flex;gap:7px}
+.chat-in{flex:1;background:#0c1a2e;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 13px;font-size:13px;font-family:inherit;direction:rtl;outline:none}
+.chat-in:focus{border-color:var(--acc)}
+.send-btn{background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:700}
+.play-btn{background:linear-gradient(135deg,#43e97b,#38f9d7);border:none;color:#1a1a2e;padding:9px 20px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:700;font-family:inherit;margin:5px 3px}
+.stop-btn{background:var(--red);border:none;color:#fff;padding:9px 14px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;margin:5px 3px}
+.loading{color:var(--acc);text-align:center;padding:22px;font-size:13.5px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--bg2);border-radius:18px;padding:26px;width:92%;max-width:450px;border:1px solid var(--border)}
+.modal h2{color:var(--gold);margin-bottom:9px;font-size:16.5px}
+.modal p{color:var(--sub);font-size:12.5px;line-height:1.75;margin-bottom:14px}
+.modal input{width:100%;background:#0c1a2e;border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:13px;font-family:inherit;direction:ltr;outline:none;margin-bottom:11px}
+.modal input:focus{border-color:var(--acc)}
+.modal-btns{display:flex;gap:9px;justify-content:flex-end}
+.msave{background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;color:#fff;padding:9px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit}
+.mcancel{background:var(--bg3);border:1px solid var(--border);color:var(--sub);padding:9px 16px;border-radius:10px;cursor:pointer;font-size:12.5px;font-family:inherit}
+.modal a{color:var(--acc);font-size:12px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:650px){.sidebar{width:100%;height:auto;border-left:none;border-bottom:1px solid var(--border)}.layout{flex-direction:column;height:auto}.chat-wrap{height:400px}}
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-ov" id="modal">
+  <div class="modal">
+    <h2>🔑 مفتاح Google Gemini API</h2>
+    <p>احصلي على مفتاحك المجاني من:<br>
+    <a href="https://aistudio.google.com/app/apikey" target="_blank">👉 aistudio.google.com/app/apikey</a><br><br>
+    المفتاح يُحفظ على متصفحك فقط ولا يُرسل لأي خادم آخر. ✅</p>
+    <input type="password" id="key-in" placeholder="AIzaSy..."/>
+    <div class="modal-btns">
+      <button class="mcancel" id="m-cancel">لاحقاً</button>
+      <button class="msave" id="m-save">💾 حفظ والبدء</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <div class="logo-title">StudyMind AI</div>
+      <div class="logo-sub">مساعدك الدراسي · Gemini · مجاني · بدون VPN</div>
+    </div>
+  </div>
+  <button class="key-btn" id="open-modal">🔑 إعداد المفتاح</button>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <h3>📄 ارفعي PDF أو صورة</h3>
+      <div class="drop-zone" id="dz">
+        <div class="drop-icon" id="dz-icon">📁</div>
+        <div class="drop-text" id="dz-text">اسحبي الملف هنا أو اضغطي</div>
+        <div class="drop-name" id="dz-name"></div>
+        <button class="clear-btn" id="clear-file" style="display:none">✕ إزالة</button>
+      </div>
+      <input type="file" id="file-in" accept=".pdf,image/*" style="display:none"/>
+    </div>
+    <div style="text-align:center;color:var(--border);font-size:11px">— أو —</div>
+    <div>
+      <h3>✍️ الصقي النص مباشرة</h3>
+      <textarea id="txt-in" placeholder="الصقي المحتوى الدراسي هنا..." rows="7"></textarea>
+    </div>
+    <div class="status warn" id="status">⚠️ ارفعي ملفاً أو الصقي نصاً للبدء</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="summary">📄 تلخيص</button>
+      <button class="tab-btn" data-tab="quiz">✏️ اختبار</button>
+      <button class="tab-btn" data-tab="concepts">💡 مفاهيم</button>
+      <button class="tab-btn" data-tab="qa">💬 دردشة</button>
+      <button class="tab-btn" data-tab="slides">🖥️ شرائح</button>
+      <button class="tab-btn" data-tab="mindmap">🕸️ مخطط</button>
+      <button class="tab-btn" data-tab="audio">🔊 صوتي</button>
+      <button class="tab-btn" data-tab="script">🎬 سكريبت</button>
+      <button class="tab-btn" data-tab="flashcards">🃏 بطاقات</button>
+    </div>
+    <div class="content">
+      <div class="tab-pane active" id="pane-summary">
+        <h2 class="pt">📄 التلخيص الذكي</h2>
+        <button class="gen-btn" id="btn-summary">✨ توليد التلخيص</button>
+        <div id="res-summary"></div>
+      </div>
+      <div class="tab-pane" id="pane-quiz">
+        <h2 class="pt">✏️ الاختبار التفاعلي</h2>
+        <button class="gen-btn" id="btn-quiz">✨ توليد الاختبار</button>
+        <div id="res-quiz"></div>
+      </div>
+      <div class="tab-pane" id="pane-concepts">
+        <h2 class="pt">💡 شرح المفاهيم الرئيسية</h2>
+        <button class="gen-btn" id="btn-concepts">✨ استخراج المفاهيم</button>
+        <div id="res-concepts"></div>
+      </div>
+      <div class="tab-pane" id="pane-qa">
+        <h2 class="pt">💬 دردشة مع المحتوى</h2>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="chat-msgs"><div style="text-align:center;color:var(--border);padding:28px;font-size:13px">🎓 اسأليني أي سؤال عن المحتوى...</div></div>
+          <div class="chat-row">
+            <input class="chat-in" id="chat-in" type="text" placeholder="اكتبي سؤالك..."/>
+            <button class="send-btn" id="btn-send">إرسال ➤</button>
+          </div>
+          <div id="chat-dl" style="margin-top:6px;display:none">
+            <button class="dl-btn" id="dl-chat">⬇ تحميل المحادثة</button>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane" id="pane-slides">
+        <h2 class="pt">🖥️ الشرائح التفاعلية</h2>
+        <button class="gen-btn" id="btn-slides">✨ توليد الشرائح</button>
+        <div id="res-slides"></div>
+      </div>
+      <div class="tab-pane" id="pane-mindmap">
+        <h2 class="pt">🕸️ المخطط الذهني</h2>
+        <button class="gen-btn" id="btn-mindmap">✨ توليد المخطط</button>
+        <div id="res-mindmap"></div>
+      </div>
+      <div class="tab-pane" id="pane-audio">
+        <h2 class="pt">🔊 الملخص الصوتي</h2>
+        <button class="gen-btn" id="btn-audio">✨ توليد النص الصوتي</button>
+        <div id="res-audio"></div>
+      </div>
+      <div class="tab-pane" id="pane-script">
+        <h2 class="pt">🎬 سكريبت الفيديو التعليمي</h2>
+        <button class="gen-btn" id="btn-script">✨ توليد السكريبت</button>
+        <div id="res-script"></div>
+      </div>
+      <div class="tab-pane" id="pane-flashcards">
+        <h2 class="pt">🃏 بطاقات المذاكرة</h2>
+        <button class="gen-btn" id="btn-flashcards">✨ توليد البطاقات</button>
+        <div id="res-flashcards"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const MODEL = 'gemini-2.0-flash';
+const API_URL = key => `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`;
+
+// ===== STATE =====
+let apiKey = localStorage.getItem('sm_gemini_key') || '';
+let fileB64 = null, fileMime = '', fileName = '';
+let quizData = null, quizAns = {}, quizDone = false;
+let cardsData = null, cardIdx = 0, cardFlipped = false;
+let chatHist = [];
+
+// ===== MODAL =====
+const modal = document.getElementById('modal');
+document.getElementById('m-save').onclick = () => {
+  const v = document.getElementById('key-in').value.trim();
+  if (!v) return alert('أدخلي المفتاح أولاً');
+  apiKey = v;
+  localStorage.setItem('sm_gemini_key', v);
+  modal.style.display = 'none';
+};
+document.getElementById('m-cancel').onclick = () => modal.style.display = 'none';
+document.getElementById('open-modal').onclick = () => {
+  document.getElementById('key-in').value = apiKey;
+  modal.style.display = 'flex';
+};
+if (!apiKey) modal.style.display = 'flex'; else modal.style.display = 'none';
+
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('pane-' + b.dataset.tab).classList.add('active');
+  };
+});
+
+// ===== FILE UPLOAD =====
+const dz = document.getElementById('dz');
+const fi = document.getElementById('file-in');
+dz.onclick = () => fi.click();
+dz.ondragover = e => { e.preventDefault(); dz.classList.add('over'); };
+dz.ondragleave = () => dz.classList.remove('over');
+dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); };
+fi.onchange = e => { if(e.target.files[0]) loadFile(e.target.files[0]); fi.value=''; };
+
+function loadFile(f) {
+  const r = new FileReader();
+  r.onload = e => {
+    fileB64 = e.target.result.split(',')[1];
+    fileMime = f.type || 'application/pdf';
+    fileName = f.name;
+    document.getElementById('dz-icon').textContent = '✅';
+    document.getElementById('dz-text').textContent = 'ملف محمّل';
+    document.getElementById('dz-name').textContent = f.name.slice(0,30);
+    document.getElementById('clear-file').style.display = 'inline-block';
+    dz.classList.add('has-file');
+    document.getElementById('txt-in').value = '';
+    updateStatus();
+  };
+  r.readAsDataURL(f);
+}
+
+document.getElementById('clear-file').onclick = e => {
+  e.stopPropagation();
+  fileB64 = null; fileMime = ''; fileName = '';
+  document.getElementById('dz-icon').textContent = '📁';
+  document.getElementById('dz-text').textContent = 'اسحبي الملف هنا أو اضغطي';
+  document.getElementById('dz-name').textContent = '';
+  document.getElementById('clear-file').style.display = 'none';
+  dz.classList.remove('has-file');
+  updateStatus();
+};
+
+document.getElementById('txt-in').oninput = () => {
+  if(document.getElementById('txt-in').value.trim()) { fileB64=null; dz.classList.remove('has-file'); }
+  updateStatus();
+};
+
+function isReady() { return fileB64 || document.getElementById('txt-in').value.trim().length > 20; }
+function updateStatus() {
+  const ok = isReady();
+  const b = document.getElementById('status');
+  b.className = 'status ' + (ok ? 'ok' : 'warn');
+  b.textContent = ok ? '✅ جاهز للتحليل' : '⚠️ ارفعي ملفاً أو الصقي نصاً للبدء';
+}
+
+// ===== GEMINI API =====
+async function callGemini(prompt, json=false) {
+  if (!apiKey) { alert('أدخلي مفتاح API أولاً 🔑'); return ''; }
+  const parts = [];
+  if (fileB64) parts.push({ inline_data: { mime_type: fileMime, data: fileB64 } });
+  const txt = document.getElementById('txt-in').value.trim();
+  const fullPrompt = fileB64 ? prompt : `المحتوى الدراسي:\n\n${txt}\n\n---\n\n${prompt}`;
+  parts.push({ text: fullPrompt });
+  const body = {
+    contents: [{ parts }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 2048, ...(json ? { responseMimeType:'application/json' } : {}) }
+  };
+  const r = await fetch(API_URL(apiKey), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message || 'Gemini API Error'); }
+  const d = await r.json();
+  return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function runGen(btnId, resId, prompt, afterFn, useJson=false) {
+  if (!isReady()) return alert('ارفعي ملفاً أو الصقي نصاً أولاً');
+  const btn = document.getElementById(btnId);
+  const res = document.getElementById(resId);
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ جاري التوليد...';
+  res.innerHTML = '<div class="loading">⏳ يحلل المحتوى... 10-20 ثانية</div>';
+  try {
+    const t = await callGemini(prompt, useJson);
+    afterFn ? afterFn(t, res) : renderText(t, res);
+  } catch(e) { res.innerHTML = `<div class="rc" style="color:var(--red)">❌ خطأ: ${e.message}</div>`; }
+  btn.disabled = false; btn.textContent = orig;
+}
+
+// ===== RENDER TEXT =====
+function renderText(t, el) {
+  el.innerHTML = `<div class="rc"><pre class="rp">${esc(t)}</pre><div class="dl-row">
+    <button class="dl-btn" onclick="dlTxt(\`${e2(t)}\`,'نتيجة.txt')">⬇ TXT</button>
+    <button class="dl-btn" onclick="dlHtml(\`${e2(t)}\`,'نتيجة.html')">⬇ HTML</button>
+    <button class="dl-btn" onclick="printPdf(\`${e2(t)}\`)">⬇ PDF (طباعة)</button>
+  </div></div>`;
+}
+
+// ===== DOWNLOAD =====
+function dl(content, name, type='text/plain') {
+  const b = new Blob([content],{type:type+';charset=utf-8'});
+  const u = URL.createObjectURL(b);
+  Object.assign(document.createElement('a'),{href:u,download:name}).click();
+  setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+function dlTxt(t,n){dl(t,n);}
+function dlHtml(t,n){dl(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;max-width:820px;margin:40px auto;padding:24px;line-height:1.9;font-size:14pt}pre{white-space:pre-wrap}</style></head><body><pre>${t}</pre></body></html>`,n,'text/html');}
+function dlRawHtml(t,n){dl(t,n,'text/html');}
+function printPdf(t){const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;margin:2cm;line-height:1.9;font-size:13pt}pre{white-space:pre-wrap}</style></head><body><pre>${t}</pre><script>window.print()<\/script></body></html>`);}
+function esc(s){return(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/`/g,'&#96;');}
+function e2(s){return(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');}
+
+// ===== SUMMARY =====
+document.getElementById('btn-summary').onclick = () =>
+  runGen('btn-summary','res-summary','لخص هذا المحتوى الدراسي باللغة العربية بشكل منظم ومفصل. اكتب عناوين رئيسية وفرعية ونقاط مهمة. اجعل التلخيص شاملاً ومفيداً للطالب.');
+
+// ===== CONCEPTS =====
+document.getElementById('btn-concepts').onclick = () =>
+  runGen('btn-concepts','res-concepts','استخرج وشرح أهم 8-10 مفاهيم ومصطلحات علمية. لكل مفهوم: الاسم، التعريف الدقيق، مثال تطبيقي. نسّق بوضوح باللغة العربية.');
+
+// ===== AUDIO =====
+document.getElementById('btn-audio').onclick = async () => {
+  if(!isReady()) return alert('ارفعي ملفاً أو الصقي نصاً أولاً');
+  const btn=document.getElementById('btn-audio'), res=document.getElementById('res-audio');
+  const orig=btn.textContent; btn.disabled=true; btn.textContent='⏳ جاري التوليد...';
+  res.innerHTML='<div class="loading">⏳ يُنشئ النص الصوتي...</div>';
+  try {
+    const t = await callGemini('أنشئ ملخصاً صوتياً تعليمياً بأسلوب مذيع. ابدأ بمقدمة جذابة. الأسلوب: واضح وممتع بالعربية.');
+    res.innerHTML=`<div class="rc"><pre class="rp" id="audio-txt">${esc(t)}</pre>
+    <div style="margin-top:11px;display:flex;flex-wrap:wrap;gap:5px">
+      <button class="play-btn" id="play-btn" onclick="startTts()">▶️ استمعي الآن</button>
+      <button class="stop-btn" id="stop-btn" style="display:none" onclick="stopTts()">⏹️ إيقاف</button>
+    </div>
+    <div class="dl-row" style="margin-top:8px">
+      <button class="dl-btn" onclick="dlTxt(\`${e2(t)}\`,'ملخص-صوتي.txt')">⬇ TXT</button>
+      <button class="dl-btn" onclick="dlHtml(\`${e2(t)}\`,'ملخص-صوتي.html')">⬇ HTML</button>
+    </div></div>`;
+  } catch(e){res.innerHTML=`<div class="rc" style="color:var(--red)">❌ ${e.message}</div>`;}
+  btn.disabled=false; btn.textContent=orig;
+};
+function startTts(){
+  const t=document.getElementById('audio-txt')?.textContent; if(!t)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t); u.lang='ar-SA'; u.rate=0.85;
+  u.onend=()=>{document.getElementById('play-btn').style.display='inline-block';document.getElementById('stop-btn').style.display='none';};
+  document.getElementById('play-btn').style.display='none';
+  document.getElementById('stop-btn').style.display='inline-block';
+  window.speechSynthesis.speak(u);
+}
+function stopTts(){
+  window.speechSynthesis.cancel();
+  const p=document.getElementById('play-btn'),s=document.getElementById('stop-btn');
+  if(p)p.style.display='inline-block'; if(s)s.style.display='none';
+}
+
+// ===== SCRIPT =====
+document.getElementById('btn-script').onclick = () =>
+  runGen('btn-script','res-script','أنشئ سكريبت فيديو تعليمي احترافي يشمل:\n[المقدمة] جملة افتتاحية جذابة\n[المشهد N] عنوان + نص + (ملاحظات للمخرج)\n[الخاتمة] ملخص وختام محفز\nبالعربية بأسلوب ممتع.');
+
+// ===== SLIDES =====
+document.getElementById('btn-slides').onclick = async () => {
+  if(!isReady()) return alert('ارفعي ملفاً أو الصقي نصاً أولاً');
+  const btn=document.getElementById('btn-slides'), res=document.getElementById('res-slides');
+  const orig=btn.textContent; btn.disabled=true; btn.textContent='⏳ جاري التوليد...';
+  res.innerHTML='<div class="loading">⏳ يُنشئ الشرائح...</div>';
+  try {
+    const prompt=`أنشئ عرض تقديمي HTML كامل احترافي (6 شرائح) من هذا المحتوى. المتطلبات:
+- DOCTYPE html كامل
+- تصميم داكن gradient زرقاء بنفسجية
+- عناوين ذهبية، نقاط بيضاء واضحة
+- RTL عربي dir="rtl"
+- أزرار تنقل "السابق / التالي" وعداد الشرائح
+- JavaScript لإدارة التنقل
+أجب بـ HTML كامل فقط من <!DOCTYPE> حتى </html> بدون أي نص خارجه.`;
+    const t = await callGemini(prompt);
+    const html=t.replace(/^```html?\n?/i,'').replace(/\n?```$/,'');
+    res.innerHTML=`<div style="margin-bottom:9px"><button class="dl-btn" onclick="dlRawHtml(\`${e2(html)}\`,'شرائح.html')">⬇ تحميل HTML</button></div>
+    <iframe srcdoc="${html.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}" style="width:100%;height:430px;border:none;border-radius:13px"></iframe>`;
+  } catch(e){res.innerHTML=`<div class="rc" style="color:var(--red)">❌ ${e.message}</div>`;}
+  btn.disabled=false; btn.textContent=orig;
+};
+
+// ===== MIND MAP =====
+document.getElementById('btn-mindmap').onclick = async () => {
+  if(!isReady()) return alert('ارفعي ملفاً أو الصقي نصاً أولاً');
+  const btn=document.getElementById('btn-mindmap'), res=document.getElementById('res-mindmap');
+  const orig=btn.textContent; btn.disabled=true; btn.textContent='⏳ جاري التوليد...';
+  res.innerHTML='<div class="loading">⏳ يُنشئ المخطط...</div>';
+  try {
+    const t = await callGemini('أنشئ مخططاً ذهنياً. أجب بـ JSON فقط بدون أي نص:\n{"root":"العنوان","branches":[{"label":"فرع","children":["نقطة1","نقطة2","نقطة3"]}]}', true);
+    const mm=JSON.parse(t.replace(/```json|```/g,'').trim());
+    const svg=buildMM(mm);
+    const div=document.createElement('div'); div.className='rc'; div.appendChild(svg);
+    const dlr=document.createElement('div'); dlr.className='dl-row';
+    dlr.innerHTML=`<button class="dl-btn" onclick="dlMmSvg()">⬇ SVG</button><button class="dl-btn" onclick="dlTxt(\`${e2(JSON.stringify(mm,null,2))}\`,'مخطط.json')">⬇ JSON</button>`;
+    div.appendChild(dlr); res.innerHTML=''; res.appendChild(div); window._mmSvg=svg;
+  } catch(e){res.innerHTML=`<div class="rc" style="color:var(--red)">❌ ${e.message}</div>`;}
+  btn.disabled=false; btn.textContent=orig;
+};
+function dlMmSvg(){if(window._mmSvg){const s=new XMLSerializer().serializeToString(window._mmSvg);dl(s,'مخطط.svg','image/svg+xml');}}
+function buildMM(d){
+  const W=820,H=560,cx=W/2,cy=H/2,R=165,cols=['#667eea','#f093fb','#43e97b','#fa709a','#4facfe','#f6d365','#96fbc4','#ff9a9e'];
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.style.cssText='width:100%;max-height:390px;background:#0d0d1e;border-radius:13px;border:1px solid #1e1e3a';
+  const mk=(tag,a,p)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);p.appendChild(e);return e;};
+  mk('ellipse',{cx,cy,rx:76,ry:32,fill:'#ffd700'},svg);
+  const rt=mk('text',{x:cx,y:cy+5,'text-anchor':'middle',fill:'#1a1a2e','font-weight':'bold','font-size':'13','font-family':'Arial'},svg);
+  rt.textContent=(d.root||'').slice(0,18);
+  (d.branches||[]).forEach((b,bi)=>{
+    const a=(bi/d.branches.length)*2*Math.PI-Math.PI/2;
+    const bx=cx+Math.cos(a)*R,by=cy+Math.sin(a)*R,col=cols[bi%cols.length];
+    mk('line',{x1:cx,y1:cy,x2:bx,y2:by,stroke:col,'stroke-width':'2.5',opacity:'.7'},svg);
+    mk('ellipse',{cx:bx,cy:by,rx:63,ry:23,fill:col},svg);
+    const bt=mk('text',{x:bx,y:by+5,'text-anchor':'middle',fill:'#fff','font-size':'11.5','font-weight':'bold','font-family':'Arial'},svg);
+    bt.textContent=(b.label||'').slice(0,14);
+    (b.children||[]).forEach((c,ci)=>{
+      const ca=a+(ci-(b.children.length-1)/2)*0.4;
+      const chx=cx+Math.cos(ca)*(R+130),chy=cy+Math.sin(ca)*(R+130);
+      mk('line',{x1:bx,y1:by,x2:chx,y2:chy,stroke:col,'stroke-width':'1.5',opacity:'.5'},svg);
+      mk('rect',{x:chx-53,y:chy-13,width:'106',height:'26',rx:'8',fill:col,opacity:'.2',stroke:col,'stroke-width':'1'},svg);
+      const ct=mk('text',{x:chx,y:chy+5,'text-anchor':'middle',fill:'#eee','font-size':'10.5','font-family':'Arial'},svg);
+      ct.textContent=(c||'').slice(0,20);
+    });
+  });
+  return svg;
+}
+
+// ===== QUIZ =====
+document.getElementById('btn-quiz').onclick = async () => {
+  if(!isReady()) return alert('ارفعي ملفاً أو الصقي نصاً أولاً');
+  const btn=document.getElementById('btn-quiz'), res=document.getElementById('res-quiz');
+  const orig=btn.textContent; btn.disabled=true; btn.textContent='⏳ جاري التوليد...';
+  res.innerHTML='<div class="loading">⏳ يُنشئ الأسئلة...</div>';
+  try {
+    const t=await callGemini('أنشئ 8 أسئلة اختيار من متعدد متنوعة ومهمة. أجب بـ JSON فقط:\n{"questions":[{"q":"...","opts":["أ)...","ب)...","ج)...","د)..."],"ans":0,"exp":"..."}]}',true);
+    const data=JSON.parse(t.replace(/```json|```/g,'').trim());
+    quizData=data.questions; quizAns={}; quizDone=false;
+    renderQuiz(res);
+  } catch(e){res.innerHTML=`<div class="rc" style="color:var(--red)">❌ ${e.message}</div>`;}
+  btn.disabled=false; btn.textContent=orig;
+};
+function renderQuiz(res){
+  if(!quizData)return;
+  let h='';
+  quizData.forEach((q,qi)=>{
+    h+=`<div class="quiz-q"><h4>س${qi+1}: ${esc(q.q)}</h4>`;
+    q.opts.forEach((o,oi)=>{
+      let c='opt';
+      if(quizDone){if(oi===q.ans)c+=' correct';else if(quizAns[qi]===oi)c+=' wrong';}
+      else if(quizAns[qi]===oi)c+=' selected';
+      h+=`<button class="${c}" onclick="selOpt(${qi},${oi})">${esc(o)}</button>`;
+    });
+    h+=`${quizDone?`<div class="exp-box">💡 ${esc(q.exp||'')}</div>`:''}`;
+    h+='</div>';
+  });
+  if(!quizDone)h+=`<button class="check-btn" onclick="checkQuiz()">✅ تحقق من الإجابات</button>`;
+  else{const s=quizData.filter((q,i)=>quizAns[i]===q.ans).length;h+=`<div class="score-box">🎉 نتيجتك: ${s} / ${quizData.length}</div>`;}
+  h+=`<div class="dl-row"><button class="dl-btn" onclick="dlQuizHtml()">⬇ HTML تفاعلي</button><button class="dl-btn" onclick="dlQuizTxt()">⬇ TXT</button></div>`;
+  res.innerHTML=h;
+}
+function selOpt(qi,oi){if(quizDone)return;quizAns[qi]=oi;renderQuiz(document.getElementById('res-quiz'));}
+function checkQuiz(){quizDone=true;renderQuiz(document.getElementById('res-quiz'));}
+function dlQuizTxt(){if(!quizData)return;dl(quizData.map((q,i)=>`س${i+1}: ${q.q}\n${q.opts.join('\n')}\nالجواب: ${q.opts[q.ans]}\nالشرح: ${q.exp}`).join('\n\n'),'اختبار.txt');}
+function dlQuizHtml(){
+  if(!quizData)return;
+  const j=JSON.stringify(quizData);
+  dl(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>اختبار</title><style>*{box-sizing:border-box}body{font-family:Arial;background:#0f0f23;color:#fff;max-width:720px;margin:0 auto;padding:22px}h1{color:#ffd700}.q{background:#16213e;border-radius:13px;padding:20px;margin:14px 0}.q h3{color:#a29bfe;margin-top:0}.opt{display:block;background:#0f3460;border:2px solid transparent;border-radius:9px;padding:10px 14px;margin:7px 0;cursor:pointer;text-align:right;width:100%;color:#fff;font-size:.95em;font-family:Arial}.opt:hover{border-color:#667eea}.correct{background:#004d40!important;border-color:#00b894!important}.wrong{background:#4a0000!important;border-color:#d63031!important}.exp{background:#1a1a3a;border-radius:8px;padding:10px;margin-top:8px;color:#a29bfe;font-size:.88em;display:none}#sub{background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;padding:13px 30px;border-radius:12px;font-size:1.05em;cursor:pointer;display:block;margin:18px auto}#score{text-align:center;font-size:1.6em;color:#ffd700;margin:18px}</style></head><body><h1>✏️ اختبار المذاكرة</h1><div id="qs"></div><button id="sub" onclick="sub()">✅ تحقق من الإجابات</button><div id="score"></div><script>const qs=${j};let sel={};const c=document.getElementById('qs');qs.forEach((q,qi)=>{const div=document.createElement('div');div.className='q';div.innerHTML='<h3>'+(qi+1)+'. '+q.q+'</h3>';q.opts.forEach((o,oi)=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>{sel[qi]=oi;div.querySelectorAll('.opt').forEach(x=>x.style.outline='');b.style.outline='2px solid #ffd700';};div.appendChild(b);});const e=document.createElement('div');e.className='exp';e.id='e'+qi;e.textContent='💡 '+q.exp;div.appendChild(e);c.appendChild(div);});function sub(){let sc=0;qs.forEach((q,qi)=>{const opts=c.children[qi].querySelectorAll('.opt');opts.forEach((b,oi)=>{if(oi===q.ans)b.className='opt correct';else if(sel[qi]===oi)b.className='opt wrong';});document.getElementById('e'+qi).style.display='block';if(sel[qi]===q.ans)sc++;});document.getElementById('score').textContent='نتيجتك: '+sc+'/'+qs.length+' 🎉';document.getElementById('sub').style.display='none';}<\/script></body></html>`,'اختبار.html','text/html');
+}
+
+// ===== FLASHCARDS =====
+document.getElementById('btn-flashcards').onclick = async () => {
+  if(!isReady()) return alert('ارفعي ملفاً أو الصقي نصاً أولاً');
+  const btn=document.getElementById('btn-flashcards'), res=document.getElementById('res-flashcards');
+  const orig=btn.textContent; btn.disabled=true; btn.textContent='⏳ جاري التوليد...';
+  res.innerHTML='<div class="loading">⏳ يُنشئ البطاقات...</div>';
+  try {
+    const t=await callGemini('أنشئ 12 بطاقة مذاكرة. أجب بـ JSON فقط:\n{"cards":[{"f":"سؤال أو مصطلح","b":"جواب أو شرح"}]}',true);
+    const data=JSON.parse(t.replace(/```json|```/g,'').trim());
+    cardsData=data.cards; cardIdx=0; cardFlipped=false;
+    renderCards(res);
+  } catch(e){res.innerHTML=`<div class="rc" style="color:var(--red)">❌ ${e.message}</div>`;}
+  btn.disabled=false; btn.textContent=orig;
+};
+function renderCards(res){
+  if(!cardsData)return;
+  const c=cardsData[cardIdx];
+  const listH=cardsData.map((x,i)=>`<div class="fc-item${i===cardIdx?' active':''}" onclick="gotoCard(${i})">${esc(x.f.slice(0,40))}${x.f.length>40?'...':''}</div>`).join('');
+  res.innerHTML=`<div class="card-counter">${cardIdx+1} / ${cardsData.length}</div>
+  <div class="fc-card ${cardFlipped?'back':'front'}" onclick="flipCard()">
+    <div class="fc-label">${cardFlipped?'📖 الجواب':'❓ السؤال'}</div>
+    <div class="fc-text">${esc(cardFlipped?c.b:c.f)}</div>
+  </div>
+  <div class="fc-nav">
+    <button class="nav-btn" onclick="prevCard()">← السابق</button>
+    <button class="nav-btn" onclick="flipCard()">🔄 اقلب</button>
+    <button class="nav-btn" onclick="nextCard()">التالي →</button>
+  </div>
+  <div class="fc-list" style="margin-bottom:11px">${listH}</div>
+  <div class="dl-row">
+    <button class="dl-btn" onclick="dlCardsHtml()">⬇ HTML تفاعلي</button>
+    <button class="dl-btn" onclick="dlCardsTxt()">⬇ TXT</button>
+    <button class="dl-btn" onclick="dlCardsJson()">⬇ JSON</button>
+  </div>`;
+}
+function flipCard(){cardFlipped=!cardFlipped;renderCards(document.getElementById('res-flashcards'));}
+function nextCard(){cardIdx=(cardIdx+1)%cardsData.length;cardFlipped=false;renderCards(document.getElementById('res-flashcards'));}
+function prevCard(){cardIdx=(cardIdx-1+cardsData.length)%cardsData.length;cardFlipped=false;renderCards(document.getElementById('res-flashcards'));}
+function gotoCard(i){cardIdx=i;cardFlipped=false;renderCards(document.getElementById('res-flashcards'));}
+function dlCardsTxt(){dl(cardsData.map((c,i)=>`${i+1}. ${c.f}\n   ➜ ${c.b}`).join('\n\n'),'بطاقات.txt');}
+function dlCardsJson(){dl(JSON.stringify({cards:cardsData},null,2),'بطاقات.json');}
+function dlCardsHtml(){
+  const j=JSON.stringify(cardsData);
+  dl(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>بطاقات المذاكرة</title><style>*{box-sizing:border-box}body{font-family:Arial;background:#0f0f23;color:#fff;display:flex;flex-direction:column;align-items:center;padding:20px;min-height:100vh}h1{color:#ffd700}.scene{width:380px;height:230px;perspective:900px;cursor:pointer;margin:18px}.card{width:100%;height:100%;transform-style:preserve-3d;transition:.55s;position:relative}.card.fl{transform:rotateY(180deg)}.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;border-radius:18px;padding:22px;text-align:center;font-size:1.1em;flex-direction:column}.front{background:linear-gradient(135deg,#667eea,#764ba2)}.back{background:linear-gradient(135deg,#f093fb,#f5576c);transform:rotateY(180deg)}.lbl{font-size:.75em;opacity:.75;margin-bottom:10px}.nav{display:flex;gap:10px;margin:10px}.btn{background:#667eea;border:none;color:#fff;padding:10px 22px;border-radius:10px;cursor:pointer;font-size:.95em}#ctr{color:#a29bfe;margin:6px}</style></head><body><h1>🃏 بطاقات المذاكرة</h1><div id="ctr"></div><div class="scene" onclick="flip()"><div class="card" id="card"><div class="face front"><div class="lbl">❓ السؤال</div><div id="q"></div></div><div class="face back"><div class="lbl">✅ الجواب</div><div id="a"></div></div></div></div><div class="nav"><button class="btn" onclick="prev()">السابق</button><button class="btn" onclick="flip()">اقلب</button><button class="btn" onclick="next()">التالي</button></div><script>const d=${j};let i=0,fl=false;function show(){document.getElementById('q').textContent=d[i].f;document.getElementById('a').textContent=d[i].b;document.getElementById('ctr').textContent=(i+1)+' / '+d.length;fl=false;document.getElementById('card').className='card';}function flip(){fl=!fl;document.getElementById('card').className='card'+(fl?' fl':'');}function next(){i=(i+1)%d.length;show();}function prev(){i=(i-1+d.length)%d.length;show();}show();<\/script></body></html>`,'بطاقات-مذاكرة.html','text/html');
+}
+
+// ===== CHAT =====
+document.getElementById('btn-send').onclick = sendChat;
+document.getElementById('chat-in').onkeydown = e => { if(e.key==='Enter')sendChat(); };
+async function sendChat(){
+  const inp=document.getElementById('chat-in');
+  const msg=inp.value.trim(); if(!msg||!isReady())return;
+  inp.value=''; chatHist.push({r:'user',t:msg}); renderChat();
+  document.getElementById('btn-send').disabled=true;
+  try {
+    const parts=[];
+    if(fileB64) parts.push({inline_data:{mime_type:fileMime,data:fileB64}});
+    const txt=document.getElementById('txt-in').value.trim();
+    const ctx=fileB64?'أجب على الأسئلة بناءً على هذا المحتوى باللغة العربية. ':`المحتوى الدراسي:\n${txt.slice(0,4000)}\n\n`;
+    const history=chatHist.slice(0,-1).map(m=>({role:m.r==='user'?'user':'model',parts:[{text:m.t}]}));
+    const body={contents:[...( history.length?[{role:'user',parts:[...parts,{text:ctx+'أجب على أسئلتي.'}]},{role:'model',parts:[{text:'حسناً، أنا جاهز للإجابة على أسئلتك.'}]}]:[]),  ...history,{role:'user',parts:[{text:msg}]}],generationConfig:{temperature:0.7,maxOutputTokens:800}};
+    const r=await fetch(API_URL(apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    const t=d.candidates?.[0]?.content?.parts?.[0]?.text||'لم أتمكن من الإجابة';
+    chatHist.push({r:'ai',t});
+  } catch(e){chatHist.push({r:'ai',t:'❌ خطأ: '+e.message});}
+  document.getElementById('btn-send').disabled=false;
+  renderChat();
+  const dl=document.getElementById('chat-dl'); dl.style.display='block';
+  document.getElementById('dl-chat').onclick=()=>dl(chatHist.map(m=>`${m.r==='user'?'أنا':'المساعد'}: ${m.t}`).join('\n\n'),'محادثة.txt');
+}
+function renderChat(){
+  const el=document.getElementById('chat-msgs');
+  el.innerHTML=chatHist.length?chatHist.map(m=>`<div class="msg ${m.r==='user'?'user':'ai'}"><div class="bubble">${esc(m.t)}</div></div>`).join(''):'<div style="text-align:center;color:var(--border);padding:28px;font-size:13px">🎓 اسأليني أي سؤال عن المحتوى...</div>';
+  el.scrollTop=el.scrollHeight;
+}
+
+// ===== INIT =====
+updateStatus();
+</script>
+</body>
+</html>
